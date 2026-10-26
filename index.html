@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rekap Gaji Guru – Doremi Music Course</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--maroon:#8c2b2b;--soft:#f8ecec;--ink:#1f2328;--mute:#69707a;--line:#e3e4e8;--bg:#f5f5f7;--card:#fff;--ok:#e3f1e8;--okt:#1d6b3a;--warn:#fbefd9;--warnt:#8a5a00}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.5 'Plus Jakarta Sans',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+header{background:var(--maroon);color:#fff;padding:18px 24px}
+header h1{margin:0;font-size:22px;font-weight:800}
+header p{margin:2px 0 0;opacity:.85;font-size:14px}
+main{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+.bar{display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin-bottom:20px}
+.tabs{display:flex;gap:4px;background:#e9e9ed;padding:4px;border-radius:10px}
+.tabs button{border:0;background:none;padding:9px 16px;border-radius:7px;font:inherit;font-weight:600;color:var(--mute);cursor:pointer}
+.tabs button.on{background:#fff;color:var(--maroon);box-shadow:0 1px 2px #0002}
+label{display:flex;flex-direction:column;font-size:13px;font-weight:600;color:var(--mute);gap:4px}
+select,input{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;min-width:170px}
+.btn{font:inherit;font-weight:700;border:0;background:var(--maroon);color:#fff;padding:10px 18px;border-radius:8px;cursor:pointer;margin-left:auto}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 18px}
+.card span{font-size:13px;color:var(--mute);font-weight:600}
+.card b{display:block;font-size:26px;font-weight:800;margin-top:2px}
+.card.big{background:var(--maroon);color:#fff;border-color:var(--maroon)}
+.card.big span{color:#fff;opacity:.85}
+h3{margin:26px 0 10px;font-size:18px}
+.tw{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{background:#fafafb;font-size:13px;color:var(--mute);font-weight:700}
+.n{text-align:right;font-variant-numeric:tabular-nums}
+tbody tr:hover{background:#fcf7f7}
+tfoot td{font-weight:800;background:var(--soft);border-bottom:0}
+.tag{font-size:12.5px;font-weight:700;padding:2px 9px;border-radius:99px;background:var(--ok);color:var(--okt)}
+.tag.p{background:var(--warn);color:var(--warnt)}
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;margin-bottom:10px}
+summary{display:flex;justify-content:space-between;gap:12px;padding:13px 16px;cursor:pointer;font-weight:700;list-style:none}
+summary small{font-weight:500;color:var(--mute);margin-left:8px}
+summary::before{content:'▸';margin-right:8px;color:var(--maroon)}
+details[open]>summary::before{content:'▾'}
+details .tw{border:0;border-top:1px solid var(--line);border-radius:0 0 10px 10px}
+.msg{padding:40px;text-align:center;color:var(--mute)}
+#login{max-width:340px;margin:80px auto;background:#fff;padding:24px;border-radius:12px;border:1px solid var(--line);display:none}
+#login input{width:100%;margin:10px 0}
+#login .btn{width:100%;margin:0}
+#print{display:none}
+.muted{color:var(--mute)}
+.sign{display:flex;justify-content:space-around;margin-top:60px;text-align:center}
+.sign div{width:200px;border-top:1px solid #000;padding-top:6px}
+@media print{
+  body{background:#fff;font-size:12px}
+  header,main,#login{display:none!important}
+  #print{display:block}
+  #print h1{margin:0;font-size:20px}#print h2{margin:2px 0;font-size:16px}
+  details{break-inside:avoid;border-color:#999}
+  summary::before{content:''}
+  .card.big{background:#fff;color:#000;border-color:#999}.card.big span{color:#000}
+  th,td{padding:5px 8px}
+  @page{margin:14mm}
+}
+</style>
+</head>
+<body>
+<header><h1>Rekap Gaji Guru</h1><p>Doremi Music Course</p></header>
+
+<div id="login">
+  <b>Masukkan password</b>
+  <input id="pw" type="password" placeholder="Password" autocomplete="current-password">
+  <button class="btn" id="pwgo">Masuk</button>
+  <p id="pwerr" class="muted"></p>
+</div>
+
+<main id="app">
+  <div class="bar">
+    <div class="tabs" id="tabs">
+      <button data-t="bulan" class="on">Per Bulan</button>
+      <button data-t="guru">Per Guru</button>
+      <button data-t="semua">Semua Bulan</button>
+    </div>
+    <label id="lb">Bulan<select id="sb"></select></label>
+    <label id="lg">Guru<select id="sg"></select></label>
+    <button class="btn" id="cetak">Cetak / Simpan PDF</button>
+  </div>
+  <div id="view"><p class="msg">Memuat data…</p></div>
+</main>
+<div id="print"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const rp=n=>'Rp'+Math.round(n).toLocaleString('id-ID');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const sum=(a,f)=>a.reduce((t,x)=>t+f(x),0);
+const by=(a,f)=>{const m=new Map();a.forEach(x=>{const k=f(x);if(!m.has(k))m.set(k,[]);m.get(k).push(x)});return m};
+const S={rows:[],tab:'bulan',b:'',g:''};
+const isP=x=>/pengganti/i.test(x.status), isT=x=>/tetap/i.test(x.status);
+const lbl=k=>(S.rows.find(r=>r.bulanKey===k)||{}).bulan||k;
+const agg=r=>({siswa:new Set(r.map(x=>x.siswa)).size,sesi:sum(r,x=>x.sesi),tetap:sum(r.filter(isT),x=>x.subtotal),peng:sum(r.filter(isP),x=>x.subtotal),total:sum(r,x=>x.subtotal)});
+
+async function load(){
+  const r=await fetch('/api/gaji',{headers:{'x-password':sessionStorage.pw||''}});
+  if(r.status===401){$('#app').style.display='none';$('#login').style.display='block';$('#pwerr').textContent=sessionStorage.pw?'Password salah.':'';return}
+  const j=await r.json();
+  if(!r.ok){$('#view').innerHTML=`<p class="msg">${esc(j.error||'Terjadi kesalahan')}</p>`;return}
+  $('#login').style.display='none';$('#app').style.display='';
+  S.rows=j.data;
+  const keys=[...new Set(S.rows.map(x=>x.bulanKey))].sort();
+  const gurus=[...new Set(S.rows.map(x=>x.guru))].sort((a,b)=>a.localeCompare(b));
+  S.b=keys[keys.length-1]||'';S.g=gurus[0]||'';
+  $('#sb').innerHTML=[...keys].reverse().map(k=>`<option value="${k}">${esc(lbl(k))}</option>`).join('');
+  $('#sg').innerHTML=gurus.map(g=>`<option>${esc(g)}</option>`).join('');
+  $('#sb').value=S.b;render();
+}
+
+const detail=r=>`<div class="tw"><table><thead><tr><th>Nama Siswa</th><th>Paket</th><th class="n">Sesi Diajar</th><th>Status</th><th class="n">Nilai/Sesi</th><th class="n">Subtotal</th></tr></thead><tbody>${r.map(x=>`<tr><td>${esc(x.siswa)}</td><td>${esc(x.paket)}</td><td class="n">${x.sesi} dari ${x.totalSesi}</td><td><span class="tag ${isP(x)?'p':''}">${esc(x.status)}</span></td><td class="n">${rp(x.nilai)}</td><td class="n">${rp(x.subtotal)}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="5">Total</td><td class="n">${rp(sum(r,x=>x.subtotal))}</td></tr></tfoot></table></div>`;
+const cards=(a,extra)=>`<div class="cards"><div class="card big"><span>Total gaji</span><b>${rp(a.total)}</b></div>${extra}<div class="card"><span>Sesi diajar</span><b>${a.sesi}</b></div></div>`;
+
+function vBulan(p){
+  const r=S.rows.filter(x=>x.bulanKey===S.b),m=by(r,x=>x.guru),names=[...m.keys()].sort((a,b)=>a.localeCompare(b)),a=agg(r);
+  if(!r.length)return'<p class="msg">Belum ada data untuk bulan ini.</p>';
+  return cards(a,`<div class="card"><span>Jumlah guru</span><b>${names.length}</b></div>`)+
+  `<h3>Total per guru – ${esc(lbl(S.b))}</h3><div class="tw"><table><thead><tr><th>Nama Guru</th><th class="n">Siswa</th><th class="n">Sesi</th><th class="n">Guru Tetap</th><th class="n">Guru Pengganti</th><th class="n">Total</th></tr></thead><tbody>${names.map(g=>{const q=agg(m.get(g));return`<tr><td><b>${esc(g)}</b></td><td class="n">${q.siswa}</td><td class="n">${q.sesi}</td><td class="n">${rp(q.tetap)}</td><td class="n">${rp(q.peng)}</td><td class="n"><b>${rp(q.total)}</b></td></tr>`}).join('')}</tbody><tfoot><tr><td>Total</td><td class="n">${a.siswa}</td><td class="n">${a.sesi}</td><td class="n">${rp(a.tetap)}</td><td class="n">${rp(a.peng)}</td><td class="n">${rp(a.total)}</td></tr></tfoot></table></div>`+
+  `<h3>Rincian per guru</h3>`+names.map(g=>{const q=agg(m.get(g));return`<details ${p?'open':''}><summary><span>${esc(g)}<small>${q.siswa} siswa · ${q.sesi} sesi</small></span><span>${rp(q.total)}</span></summary>${detail(m.get(g))}</details>`}).join('');
+}
+
+function vGuru(p){
+  const r=S.rows.filter(x=>x.guru===S.g),m=by(r,x=>x.bulanKey),keys=[...m.keys()].sort(),a=agg(r),cur=r.filter(x=>x.bulanKey===S.b);
+  return cards(a,`<div class="card"><span>Guru</span><b>${esc(S.g)}</b></div>`)+
+  `<h3>Gaji per bulan – ${esc(S.g)}</h3><div class="tw"><table><thead><tr><th>Bulan</th><th class="n">Siswa</th><th class="n">Sesi</th><th class="n">Guru Tetap</th><th class="n">Guru Pengganti</th><th class="n">Total</th></tr></thead><tbody>${keys.map(k=>{const q=agg(m.get(k));return`<tr><td><b>${esc(lbl(k))}</b></td><td class="n">${q.siswa}</td><td class="n">${q.sesi}</td><td class="n">${rp(q.tetap)}</td><td class="n">${rp(q.peng)}</td><td class="n"><b>${rp(q.total)}</b></td></tr>`}).join('')}</tbody><tfoot><tr><td>Total semua bulan</td><td class="n"></td><td class="n">${a.sesi}</td><td class="n">${rp(a.tetap)}</td><td class="n">${rp(a.peng)}</td><td class="n">${rp(a.total)}</td></tr></tfoot></table></div>`+
+  `<h3>Rincian ${esc(lbl(S.b))}</h3>`+(cur.length?detail(cur):'<p class="msg">Guru ini tidak punya data di bulan tersebut.</p>');
+}
+
+function vSemua(){
+  const keys=[...new Set(S.rows.map(x=>x.bulanKey))].sort(),gurus=[...new Set(S.rows.map(x=>x.guru))].sort((a,b)=>a.localeCompare(b));
+  const cell=(g,k)=>sum(S.rows.filter(x=>x.guru===g&&x.bulanKey===k),x=>x.subtotal);
+  return cards(agg(S.rows),`<div class="card"><span>Jumlah bulan</span><b>${keys.length}</b></div>`)+
+  `<h3>Total gaji per guru per bulan</h3><div class="tw"><table><thead><tr><th>Nama Guru</th>${keys.map(k=>`<th class="n">${esc(lbl(k))}</th>`).join('')}<th class="n">Total</th></tr></thead><tbody>${gurus.map(g=>`<tr><td><b>${esc(g)}</b></td>${keys.map(k=>`<td class="n">${cell(g,k)?rp(cell(g,k)):'–'}</td>`).join('')}<td class="n"><b>${rp(sum(keys,k=>cell(g,k)))}</b></td></tr>`).join('')}</tbody><tfoot><tr><td>Total per bulan</td>${keys.map(k=>`<td class="n">${rp(sum(gurus,g=>cell(g,k)))}</td>`).join('')}<td class="n">${rp(sum(S.rows,x=>x.subtotal))}</td></tr></tfoot></table></div>`;
+}
+
+function render(p){
+  const v={bulan:vBulan,guru:vGuru,semua:vSemua}[S.tab](p);
+  if(p)return v;$('#view').innerHTML=v;
+  $('#lb').style.display=S.tab==='semua'?'none':'';
+  $('#lg').style.display=S.tab==='guru'?'':'none';
+}
+
+$('#tabs').onclick=e=>{const t=e.target.dataset.t;if(!t)return;S.tab=t;document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b===e.target));render()};
+$('#sb').onchange=e=>{S.b=e.target.value;render()};
+$('#sg').onchange=e=>{S.g=e.target.value;render()};
+$('#pwgo').onclick=()=>{sessionStorage.pw=$('#pw').value;load()};
+$('#pw').onkeydown=e=>{if(e.key==='Enter')$('#pwgo').click()};
+$('#cetak').onclick=()=>{
+  const t={bulan:'Rekap Gaji Guru – '+lbl(S.b),guru:'Rekap Gaji – '+S.g,semua:'Rekap Gaji Semua Bulan'}[S.tab];
+  const sign=S.tab==='guru'?'<div class="sign"><div>Pengelola</div><div>'+esc(S.g)+'</div></div>':'';
+  $('#print').innerHTML=`<h1>Doremi Music Course</h1><h2>${esc(t)}</h2><p class="muted">Dicetak ${new Date().toLocaleDateString('id-ID',{dateStyle:'long'})}</p>`+render(true)+sign;
+  print();
+};
+load();
+</script>
+</body>
+</html>
