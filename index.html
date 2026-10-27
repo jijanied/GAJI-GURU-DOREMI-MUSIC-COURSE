@@ -98,7 +98,7 @@ const by=(a,f)=>{const m=new Map();a.forEach(x=>{const k=f(x);if(!m.has(k))m.set
 const S={rows:[],tab:'bulan',b:'',g:''};
 const isP=x=>/pengganti/i.test(x.status), isT=x=>/tetap/i.test(x.status);
 const lbl=k=>(S.rows.find(r=>r.bulanKey===k)||{}).bulan||k;
-const agg=r=>({siswa:new Set(r.map(x=>x.siswa)).size,sesi:sum(r,x=>x.sesi),tetap:sum(r.filter(isT),x=>x.subtotal),peng:sum(r.filter(isP),x=>x.subtotal),total:sum(r,x=>x.subtotal)});
+const agg=r=>({siswa:new Set(r.map(x=>x.siswa)).size,sesi:sum(r,x=>x.sesi),tetap:sum(r.filter(isT),x=>x.subtotal),peng:sum(r,x=>x.subtotal)-sum(r.filter(isT),x=>x.subtotal),total:sum(r,x=>x.subtotal)});
 
 async function load(){
   const r=await fetch('/api/gaji',{headers:{'x-password':sessionStorage.pw||''}});
@@ -122,14 +122,14 @@ function vBulan(p){
   const r=S.rows.filter(x=>x.bulanKey===S.b),m=by(r,x=>x.guru),names=[...m.keys()].sort((a,b)=>a.localeCompare(b)),a=agg(r);
   if(!r.length)return'<p class="msg">Belum ada data untuk bulan ini.</p>';
   return cards(a,`<div class="card"><span>Jumlah guru</span><b>${names.length}</b></div>`)+
-  `<h3>Total per guru – ${esc(lbl(S.b))}</h3><div class="tw"><table><thead><tr><th>Nama Guru</th><th class="n">Siswa</th><th class="n">Sesi</th><th class="n">Guru Tetap</th><th class="n">Guru Pengganti</th><th class="n">Total</th></tr></thead><tbody>${names.map(g=>{const q=agg(m.get(g));return`<tr><td><b>${esc(g)}</b></td><td class="n">${q.siswa}</td><td class="n">${q.sesi}</td><td class="n">${rp(q.tetap)}</td><td class="n">${rp(q.peng)}</td><td class="n"><b>${rp(q.total)}</b></td></tr>`}).join('')}</tbody><tfoot><tr><td>Total</td><td class="n">${a.siswa}</td><td class="n">${a.sesi}</td><td class="n">${rp(a.tetap)}</td><td class="n">${rp(a.peng)}</td><td class="n">${rp(a.total)}</td></tr></tfoot></table></div>`+
+  `<h3>Total per guru – ${esc(lbl(S.b))}</h3><div class="tw"><table><thead><tr><th>Nama Guru</th><th class="n">Siswa</th><th class="n">Sesi</th><th class="n">Guru Tetap</th><th class="n">Pengganti/Lainnya</th><th class="n">Total</th></tr></thead><tbody>${names.map(g=>{const q=agg(m.get(g));return`<tr><td><b>${esc(g)}</b></td><td class="n">${q.siswa}</td><td class="n">${q.sesi}</td><td class="n">${rp(q.tetap)}</td><td class="n">${rp(q.peng)}</td><td class="n"><b>${rp(q.total)}</b></td></tr>`}).join('')}</tbody><tfoot><tr><td>Total</td><td class="n">${a.siswa}</td><td class="n">${a.sesi}</td><td class="n">${rp(a.tetap)}</td><td class="n">${rp(a.peng)}</td><td class="n">${rp(a.total)}</td></tr></tfoot></table></div>`+
   `<h3>Rincian per guru</h3>`+names.map(g=>{const q=agg(m.get(g));return`<details ${p?'open':''}><summary><span>${esc(g)}<small>${q.siswa} siswa · ${q.sesi} sesi</small></span><span>${rp(q.total)}</span></summary>${detail(m.get(g))}</details>`}).join('');
 }
 
 function vGuru(p){
   const r=S.rows.filter(x=>x.guru===S.g),m=by(r,x=>x.bulanKey),keys=[...m.keys()].sort(),a=agg(r),cur=r.filter(x=>x.bulanKey===S.b);
   return cards(a,`<div class="card"><span>Guru</span><b>${esc(S.g)}</b></div>`)+
-  `<h3>Gaji per bulan – ${esc(S.g)}</h3><div class="tw"><table><thead><tr><th>Bulan</th><th class="n">Siswa</th><th class="n">Sesi</th><th class="n">Guru Tetap</th><th class="n">Guru Pengganti</th><th class="n">Total</th></tr></thead><tbody>${keys.map(k=>{const q=agg(m.get(k));return`<tr><td><b>${esc(lbl(k))}</b></td><td class="n">${q.siswa}</td><td class="n">${q.sesi}</td><td class="n">${rp(q.tetap)}</td><td class="n">${rp(q.peng)}</td><td class="n"><b>${rp(q.total)}</b></td></tr>`}).join('')}</tbody><tfoot><tr><td>Total semua bulan</td><td class="n"></td><td class="n">${a.sesi}</td><td class="n">${rp(a.tetap)}</td><td class="n">${rp(a.peng)}</td><td class="n">${rp(a.total)}</td></tr></tfoot></table></div>`+
+  `<h3>Gaji per bulan – ${esc(S.g)}</h3><div class="tw"><table><thead><tr><th>Bulan</th><th class="n">Siswa</th><th class="n">Sesi</th><th class="n">Guru Tetap</th><th class="n">Pengganti/Lainnya</th><th class="n">Total</th></tr></thead><tbody>${keys.map(k=>{const q=agg(m.get(k));return`<tr><td><b>${esc(lbl(k))}</b></td><td class="n">${q.siswa}</td><td class="n">${q.sesi}</td><td class="n">${rp(q.tetap)}</td><td class="n">${rp(q.peng)}</td><td class="n"><b>${rp(q.total)}</b></td></tr>`}).join('')}</tbody><tfoot><tr><td>Total semua bulan</td><td class="n"></td><td class="n">${a.sesi}</td><td class="n">${rp(a.tetap)}</td><td class="n">${rp(a.peng)}</td><td class="n">${rp(a.total)}</td></tr></tfoot></table></div>`+
   `<h3>Rincian ${esc(lbl(S.b))}</h3>`+(cur.length?detail(cur):'<p class="msg">Guru ini tidak punya data di bulan tersebut.</p>');
 }
 
