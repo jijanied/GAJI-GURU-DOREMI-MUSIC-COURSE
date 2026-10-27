@@ -78,7 +78,11 @@ module.exports = async (req, res) => {
     const col = {}; head.forEach((h, i) => (col[norm(h)] = i));
     const get = (row, k) => row[col[k]] ?? '';
 
-    const data = body.filter(r => get(r, 'namaguru').trim()).map(r => {
+    const data = body.filter(r => {
+      const g = get(r, 'namaguru').trim();
+      // lewati baris kosong & baris total/subtotal bawaan sheet
+      return g && !/^(grand\s*)?total\b/i.test(g) && (get(r, 'namasiswa').trim() || get(r, 'paket').trim());
+    }).map(r => {
       const b = parseBulan(get(r, 'bulan'));
       const sesi = toNum(get(r, 'jmlsesidiajar')), nilai = toNum(get(r, 'nilaipersesi'));
       const sub = get(r, 'subtotal') !== '' ? toNum(get(r, 'subtotal')) : sesi * nilai;
